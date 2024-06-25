@@ -1,6 +1,8 @@
 import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 
 import {
   Button,
@@ -11,7 +13,7 @@ import {
 } from "@material-ui/core";
 
 interface SlotBookingFormData {
-  bookingDate: string;
+  bookingDate: Date; // Adjusted type to Date
   slot: string;
 }
 
@@ -19,16 +21,31 @@ interface SlotBookingFormProps {
   onSubmit: (data: SlotBookingFormData) => void;
 }
 
+const schema = yup.object().shape({
+  bookingDate: yup
+    .date()
+    .required("Booking Date is required")
+    .min(new Date(), "Booking Date must be a future date"),
+  slot: yup.string().required("Slot is required"),
+});
+
+const slotOptions = [
+  { value: "morning", label: "9am-11am" },
+  { value: "afternoon", label: "11am-1pm" },
+  { value: "evening", label: "1pm-3pm" },
+];
+
 const SlotBookingForm: React.FC<SlotBookingFormProps> = ({ onSubmit }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-    setValue,
-  } = useForm<SlotBookingFormData>();
+  } = useForm<SlotBookingFormData>({
+    resolver: yupResolver(schema),
+  });
   const navigate = useNavigate();
 
-  const onNextClick = (data: SlotBookingFormData) => {
+  const onNextClick: SubmitHandler<SlotBookingFormData> = (data) => {
     onSubmit(data);
     localStorage.setItem("slotBooking", JSON.stringify(data));
     navigate("/thank-you");
@@ -45,20 +62,22 @@ const SlotBookingForm: React.FC<SlotBookingFormProps> = ({ onSubmit }) => {
           label="Booking Date"
           type="date"
           InputLabelProps={{ shrink: true }}
-          {...register("bookingDate", { required: "Booking Date is required" })}
+          {...register("bookingDate")}
           error={!!errors.bookingDate}
           helperText={errors.bookingDate && errors.bookingDate.message}
           fullWidth
         />
         <Select
           id="slot"
-          {...register("slot", { required: "Slot is required" })}
+          {...register("slot")}
           error={!!errors.slot}
           fullWidth
         >
-          <MenuItem value="morning">9am-11am</MenuItem>
-          <MenuItem value="afternoon">11am-1pm</MenuItem>
-          <MenuItem value="evening">1pm-3pm</MenuItem>
+          {slotOptions.map((option) => (
+            <MenuItem key={option.value} value={option.value}>
+              {option.label}
+            </MenuItem>
+          ))}
         </Select>
         {errors.slot && (
           <Typography color="error">{errors.slot.message}</Typography>

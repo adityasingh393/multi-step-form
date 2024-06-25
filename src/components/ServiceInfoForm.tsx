@@ -1,6 +1,8 @@
 import React from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 
 import {
   Button,
@@ -19,19 +21,35 @@ interface ServiceInfoFormProps {
   onSubmit: (data: ServiceInfoFormData) => void;
 }
 
+const schema = yup.object().shape({
+  vehicleType: yup.string().required("Vehicle Type is required"),
+  modelNumber: yup
+    .string()
+    .required("Model Number is required")
+    .matches(/^[a-zA-Z][a-zA-Z0-9]{1,5}$/, "Invalid Model Number format, It must start with a letter")
+    .max(6, "Model Number must not exceed 6 characters"),
+});
+
+const vehicleTypes = [
+  { id: "motorcycle", label: "Motorcycle" },
+  { id: "car", label: "Car" },
+  { id: "truck", label: "Truck" },
+  { id: "bus", label: "Bus" },
+];
+
 const ServiceInfoForm: React.FC<ServiceInfoFormProps> = ({ onSubmit }) => {
   const {
-    register,
+    control,
     handleSubmit,
     formState: { errors },
-    setValue,
-  } = useForm<ServiceInfoFormData>();
+  } = useForm<ServiceInfoFormData>({
+    resolver: yupResolver(schema),
+  });
   const navigate = useNavigate();
 
-  const onNextClick = (data: ServiceInfoFormData) => {
+  const onNextClick: SubmitHandler<ServiceInfoFormData> = (data) => {
     onSubmit(data);
     localStorage.setItem("serviceInfo", JSON.stringify(data));
-
     navigate("/slot-booking");
   };
 
@@ -41,27 +59,40 @@ const ServiceInfoForm: React.FC<ServiceInfoFormProps> = ({ onSubmit }) => {
         Service Information
       </Typography>
       <form onSubmit={handleSubmit(onNextClick)}>
-        <Select
-          id="vehicleType"
-          {...register("vehicleType", { required: "Vehicle Type is required" })}
-          error={!!errors.vehicleType}
-          fullWidth
-        >
-          <MenuItem value="motorcycle">Motorcycle</MenuItem>
-          <MenuItem value="car">Car</MenuItem>
-          <MenuItem value="truck">Truck</MenuItem>
-          <MenuItem value="bus">Bus</MenuItem>
-        </Select>
+        <Controller
+          name="vehicleType"
+          control={control}
+          defaultValue=""
+          render={({ field }) => (
+            <Select
+              {...field}
+              error={!!errors.vehicleType}
+              fullWidth
+            >
+              {vehicleTypes.map((type) => (
+                <MenuItem key={type.id} value={type.id}>
+                  {type.label}
+                </MenuItem>
+              ))}
+            </Select>
+          )}
+        />
         {errors.vehicleType && (
           <Typography color="error">{errors.vehicleType.message}</Typography>
         )}
-        <TextField
-          id="modelNumber"
-          label="Model Number"
-          {...register("modelNumber", { required: "Model Number is required" })}
-          error={!!errors.modelNumber}
-          helperText={errors.modelNumber && errors.modelNumber.message}
-          fullWidth
+        <Controller
+          name="modelNumber"
+          control={control}
+          defaultValue=""
+          render={({ field }) => (
+            <TextField
+              {...field}
+              label="Model Number"
+              error={!!errors.modelNumber}
+              helperText={errors.modelNumber && errors.modelNumber.message}
+              fullWidth
+            />
+          )}
         />
         <Button type="submit" variant="contained" color="primary">
           Next
