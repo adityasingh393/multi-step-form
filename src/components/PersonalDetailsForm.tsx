@@ -93,7 +93,7 @@ const PersonalDetailsForm: React.FC<PersonalDetailsFormProps> = ({ onSubmit }) =
             />
           )}
         />
-        <Button type="submit" variant="contained" color="primary">
+        <Button type="submit" variant="contained" color="secondary">
           Next
         </Button>
       </form>

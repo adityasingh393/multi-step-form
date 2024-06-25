@@ -82,7 +82,7 @@ const SlotBookingForm: React.FC<SlotBookingFormProps> = ({ onSubmit }) => {
         {errors.slot && (
           <Typography color="error">{errors.slot.message}</Typography>
         )}
-        <Button type="submit" variant="contained" color="primary">
+        <Button type="submit" variant="contained" color="secondary">
           Next
         </Button>
       </form>

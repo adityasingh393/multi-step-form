@@ -94,7 +94,7 @@ const ServiceInfoForm: React.FC<ServiceInfoFormProps> = ({ onSubmit }) => {
             />
           )}
         />
-        <Button type="submit" variant="contained" color="primary">
+        <Button type="submit" variant="contained" color="secondary">
           Next
         </Button>
       </form>
