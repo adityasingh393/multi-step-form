@@ -2,6 +2,13 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+# to run the project on you own machine follow the below steps 
+
+## clone the repository
+## run git clone and the url to get a copy of the code
+## npm i 
+## npm start
+
 ## Available Scripts
 
 In the project directory, you can run:
