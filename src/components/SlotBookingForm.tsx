@@ -1,5 +1,5 @@
 import React from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -37,7 +37,7 @@ const slotOptions = [
 
 const SlotBookingForm: React.FC<SlotBookingFormProps> = ({ onSubmit }) => {
   const {
-    register,
+    control, // Use control instead of register
     handleSubmit,
     formState: { errors },
   } = useForm<SlotBookingFormData>({
@@ -57,28 +57,41 @@ const SlotBookingForm: React.FC<SlotBookingFormProps> = ({ onSubmit }) => {
         Slot Booking
       </Typography>
       <form onSubmit={handleSubmit(onNextClick)}>
-        <TextField
-          id="bookingDate"
-          label="Booking Date"
-          type="date"
-          InputLabelProps={{ shrink: true }}
-          {...register("bookingDate")}
-          error={!!errors.bookingDate}
-          helperText={errors.bookingDate && errors.bookingDate.message}
-          fullWidth
+        <Controller
+          name="bookingDate"
+          control={control}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              id="bookingDate"
+              label="Booking Date"
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              error={!!errors.bookingDate}
+              helperText={errors.bookingDate && errors.bookingDate.message}
+              fullWidth
+            />
+          )}
         />
-        <Select
-          id="slot"
-          {...register("slot")}
-          error={!!errors.slot}
-          fullWidth
-        >
-          {slotOptions.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
-            </MenuItem>
-          ))}
-        </Select>
+        <Controller
+          name="slot"
+          control={control}
+          defaultValue=""
+          render={({ field }) => (
+            <Select
+              {...field}
+              id="slot"
+              error={!!errors.slot}
+              fullWidth
+            >
+              {slotOptions.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </Select>
+          )}
+        />
         {errors.slot && (
           <Typography color="error">{errors.slot.message}</Typography>
         )}
